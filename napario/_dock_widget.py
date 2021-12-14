@@ -107,16 +107,19 @@ class SaveAndLoad(QWidget):
                 colormap =parameter['colormap']
                 if(type == 'image'):
                     self.viewer.open(join(currentDirectory, filename),layer_type=type,name=name,colormap=colormap,scale=[zFactor, 1, 1],blending='additive')
-                    
+                    continue
                 if(type == 'points'):
                     pointsCsv = pd.read_csv(join(currentDirectory, filename))
                     qualities = pointsCsv['confidence'].values
                     properties = {'confidence' : qualities}
                     self.viewer.open(join(currentDirectory, filename),layer_type=type,name=name,face_colormap=colormap,scale=[zFactor, 1, 1],size=3,properties=properties,face_color='confidence',face_contrast_limits=(0.0,1.0))
-                
+                    continue
                 if(type == 'shapes'):
                     self.viewer.open(join(currentDirectory, filename),layer_type=type,name=name,face_colormap=colormap,scale=[zFactor, 1, 1])
-                
+                    continue
+                if(type == 'labels'):
+                    self.viewer.open(join(currentDirectory, filename),layer_type=type,name=name,scale=[zFactor, 1, 1])
+
     def saveAllLayers(self,directoryName):
         savePath = str(directoryName).replace("\\", "/").replace("//", "/")
 
@@ -133,13 +136,18 @@ class SaveAndLoad(QWidget):
                 type_ = 'image'
                 filename = name + ".tif"
                 colormap = currentLayer.colormap.name
-            else:
-                if(type_.find('points')>-1):
-                    type_ = 'points'
-                else:
-                    type_ = 'shapes'
+            if(type_.find('points')>-1):
+                type_ = 'points'
                 filename = name + ".csv"
                 colormap = currentLayer.face_colormap.name
+            if(type_.find('shapes')>-1):
+                type_ = 'shapes'
+                filename = name + ".csv"
+                colormap = currentLayer.face_colormap.name
+            if(type_.find('labels')>-1):
+                type_ = 'labels'
+                filename = name + ".tif"
+                colormap = "DummyData"
 
             layersArray.append({'name':name,'filename':filename,'type':type_,'colormap':colormap})
             
